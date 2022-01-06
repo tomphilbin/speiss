@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "SpeissApi.Protos";
+
+service SatellitePasses {
+    rpc GetAll (SatellitePassesRequest) returns (SatellitePassesResponse) {}
+}
+
+message SatellitePassesRequest {
+    int64 start_date = 1;
+    int64 end_date = 2;
+    Tle tle = 3;
+    Location location = 4;
+
+    message Tle {
+        string name = 1;
+        string line1 = 2;
+        string line2 = 3;
+    }
+
+    message Location {
+        double latitude = 1;
+        double longitude = 2;
+        int32 elevation = 3;
+    }
+}
+
+message SatellitePassesResponse {
+    repeated SatellitePassesItem items = 1;
+
+    message SatellitePassesItem {
+        int64 start_time = 1;
+        double start_elevation = 2;
+        int64 end_time = 3;
+        double end_elevation = 4;
+        int64 peak_time = 5;
+        double peak_elevation = 6;
+        double magnitude = 7;
+        bool satellite_is_eclipsed = 8;
+        bool sun_is_visible = 9;
+    }
+}
