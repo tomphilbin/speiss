@@ -29,6 +29,7 @@ public class ForecastsController : ControllerBase
     }
 
     [HttpGet("station/{satelliteId}/{latitude}/{longitude}")]
+    [ResponseCache(Duration = 3600)]
     public async Task<IActionResult> GetStations(
         int satelliteId,
         double latitude,

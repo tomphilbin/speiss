@@ -17,6 +17,7 @@ public class StationsController : ControllerBase
     }
 
     [HttpGet]
+    [ResponseCache(Duration = 3600)]
     public async Task<IActionResult> GetAll()
     {
         var tles = await _tleStore.GetAll();
@@ -31,6 +32,7 @@ public class StationsController : ControllerBase
     }
 
     [HttpGet("{satelliteId}")]
+    [ResponseCache(Duration = 3600)]
     public async Task<IActionResult> GetByStationId(int satelliteId)
     {
         var tle = await _tleStore.GetBySatelliteId(satelliteId);
