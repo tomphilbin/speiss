@@ -1,6 +1,7 @@
 import asyncio
 import grpc
 import logging
+import os
 
 import calculate_passes
 import satellite_passes_pb2
@@ -12,8 +13,8 @@ class SatellitePasses(satellite_passes_pb2_grpc.SatellitePassesServicer):
     async def GetAll(self, request: satellite_passes_pb2.SatellitePassesRequest,
                      context: grpc.aio.ServicerContext) -> satellite_passes_pb2.SatellitePassesResponse:
 
-        passes = calculate_passes.get_all(request.tle, request.start_date,
-                                          request.end_date, request.location)
+        passes = calculate_passes.calc_range(request.tle, request.start_date,
+                                             request.end_date, request.location)
 
         return satellite_passes_pb2.SatellitePassesResponse(items=passes)
 
@@ -22,7 +23,7 @@ async def serve() -> None:
     server = grpc.aio.server()
     satellite_passes_pb2_grpc.add_SatellitePassesServicer_to_server(
         SatellitePasses(), server)
-    listen_addr = '[::]:50051'
+    listen_addr = os.environ.get('LISTEN_ADDR') or '[::]:50051'
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
     await server.start()

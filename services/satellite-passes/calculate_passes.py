@@ -8,7 +8,7 @@ STANDARD_MAG = -1.8
 TWILIGHT_START_DEG = -6
 
 
-def get_all(tle, start_date, end_date, location) -> list:
+def calc_range(tle, start_date, end_date, location) -> list:
     sun = ephem.Sun()
     observer = ephem.Observer()
 

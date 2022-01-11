@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SpeissApi.Config;
 using SpeissApi.Domain;
 
@@ -13,8 +14,19 @@ builder.Services
     .AddMemoryCache()
     .AddControllers();
 
+builder.Services
+    .AddHealthChecks()
+    .AddCheck("health", () => HealthCheckResult.Healthy());
+
 var app = builder.Build();
 
-app.MapControllers();
+app.UseRouting();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHealthChecks("/");
+    endpoints.MapHealthChecks("/ready");
+    endpoints.MapControllers();
+});
 
 app.Run();
