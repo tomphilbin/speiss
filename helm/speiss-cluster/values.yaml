@@ -1,0 +1,56 @@
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 1000m
+    ephemeral-storage: 512Mi
+    memory: 512Mi
+  requests:
+    cpu: 500m
+    ephemeral-storage: 512Mi
+    memory: 512Mi
+
+nodeSelector:
+  cloud.google.com/gke-spot: "true"
+
+tolerations:
+  - effect: NoSchedule
+    key: cloud.google.com/gke-spot
+    operator: Equal
+    value: "true"
+
+namespace: default
+
+artifactRepo: "" # Set with helm template command
+
+speissApi:
+  name: speiss-api
+  version: "0.0.2"
+  image: "{{ .Values.artifactRepo }}/{{ .Values.speissApi.name }}:{{ .Values.speissApi.version }}"
+  service:
+    name: "{{ .Values.speissApi.name }}-service"
+    host: "http://{{ tpl .Values.speissApi.service.name . }}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.speissApi.service.port }}"
+    port: 80
+    targetPort: 80
+
+satellitePasses:
+  name: satellite-passes
+  version: "0.0.1"
+  image: "{{ .Values.artifactRepo }}/{{ .Values.satellitePasses.name }}:{{ .Values.satellitePasses.version }}"
+  service:
+    name: "{{ .Values.satellitePasses.name }}-service"
+    host: "http://{{ tpl .Values.satellitePasses.service.name . }}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.satellitePasses.service.port }}"
+    port: 80
+    targetPort: 80
+
+cloudflared:
+  name: cloudflared
+  version: "2022.1.0"
+  image: "cloudflare/cloudflared:{{ .Values.cloudflared.version }}"
+  config:
+    name: cloudflared
+    externalHost: speiss-api.fishcreek.dev
+    tunnel: speiss-tunnel
+  tunnelSecret:
+    name: tunnel-credentials
+    value: "" # Set with helm template command

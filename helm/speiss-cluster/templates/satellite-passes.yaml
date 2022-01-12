@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.satellitePasses.name }}
+  name: {{ .Values.satellitePasses.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.satellitePasses.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.satellitePasses.name }}
+    spec:
+      containers:
+      - name: {{ .Values.satellitePasses.name }}
+        image: {{ tpl .Values.satellitePasses.image .}}
+        resources: 
+          {{- toYaml .Values.resources | nindent 12 }}
+      nodeSelector: 
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations: 
+        {{- toYaml .Values.tolerations | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .Values.satellitePasses.name }}
+  name: {{ tpl .Values.satellitePasses.service.name . }}
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.satellitePasses.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.satellitePasses.service.targetPort }}
+  selector:
+    app: {{ .Values.satellitePasses.name }}
+  type: ClusterIP

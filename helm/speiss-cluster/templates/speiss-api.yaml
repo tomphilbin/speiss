@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.speissApi.name }}
+  name: {{ .Values.speissApi.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.speissApi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.speissApi.name }}
+    spec:
+      containers:
+        - env:
+            - name: Uri__SatellitePassesEndpoint
+              value: {{ tpl .Values.satellitePasses.service.host . }}
+          image: {{ tpl .Values.speissApi.image . }}
+          name: {{ .Values.speissApi.name }}
+          resources: 
+            {{- toYaml .Values.resources | nindent 12 }}
+      nodeSelector: 
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations: 
+        {{- toYaml .Values.tolerations | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .Values.speissApi.name }}
+  name: {{ tpl .Values.speissApi.service.name . }}
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - port: {{ .Values.speissApi.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.speissApi.service.targetPort }}
+  selector:
+    app: {{ .Values.speissApi.name }}
+  type: ClusterIP
