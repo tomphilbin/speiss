@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import satellite_passes_pb2 as satellite__passes__pb2
+import ephemeris_pb2 as ephemeris__pb2
 
 
-class SatellitePassesStub(object):
+class EphemerisStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,42 +14,42 @@ class SatellitePassesStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetAll = channel.unary_unary(
-                '/SatellitePasses/GetAll',
-                request_serializer=satellite__passes__pb2.SatellitePassesRequest.SerializeToString,
-                response_deserializer=satellite__passes__pb2.SatellitePassesResponse.FromString,
+        self.GetAllSatellitePasses = channel.unary_unary(
+                '/Ephemeris/GetAllSatellitePasses',
+                request_serializer=ephemeris__pb2.SatellitePassesRequest.SerializeToString,
+                response_deserializer=ephemeris__pb2.SatellitePassesResponse.FromString,
                 )
 
 
-class SatellitePassesServicer(object):
+class EphemerisServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetAll(self, request, context):
+    def GetAllSatellitePasses(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_SatellitePassesServicer_to_server(servicer, server):
+def add_EphemerisServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetAll': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAll,
-                    request_deserializer=satellite__passes__pb2.SatellitePassesRequest.FromString,
-                    response_serializer=satellite__passes__pb2.SatellitePassesResponse.SerializeToString,
+            'GetAllSatellitePasses': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllSatellitePasses,
+                    request_deserializer=ephemeris__pb2.SatellitePassesRequest.FromString,
+                    response_serializer=ephemeris__pb2.SatellitePassesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'SatellitePasses', rpc_method_handlers)
+            'Ephemeris', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class SatellitePasses(object):
+class Ephemeris(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetAll(request,
+    def GetAllSatellitePasses(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class SatellitePasses(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/SatellitePasses/GetAll',
-            satellite__passes__pb2.SatellitePassesRequest.SerializeToString,
-            satellite__passes__pb2.SatellitePassesResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/Ephemeris/GetAllSatellitePasses',
+            ephemeris__pb2.SatellitePassesRequest.SerializeToString,
+            ephemeris__pb2.SatellitePassesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

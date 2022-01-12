@@ -2,8 +2,8 @@ syntax = "proto3";
 
 option csharp_namespace = "SpeissApi.Protos";
 
-service SatellitePasses {
-    rpc GetAll (SatellitePassesRequest) returns (SatellitePassesResponse) {}
+service Ephemeris {
+    rpc GetAllSatellitePasses (SatellitePassesRequest) returns (SatellitePassesResponse) {}
 }
 
 message SatellitePassesRequest {

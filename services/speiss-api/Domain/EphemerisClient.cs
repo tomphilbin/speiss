@@ -3,30 +3,30 @@ using Microsoft.Extensions.Options;
 using SpeissApi.Config;
 using SpeissApi.Protos;
 
-using static SpeissApi.Protos.SatellitePasses;
+using static SpeissApi.Protos.Ephemeris;
 using static SpeissApi.Protos.SatellitePassesRequest.Types;
 using static SpeissApi.Protos.SatellitePassesResponse.Types;
 
 namespace SpeissApi.Domain;
 
-public interface ISatellitePassesClient
+public interface IEphemerisClient
 {
-    Task<List<SatellitePassesItem>> Get(GetAllSatellitePassesOptions opts);
+    Task<List<SatellitePassesItem>> GetAllSatellitePasses(GetAllSatellitePassesOptions opts);
 }
 
-public class SatellitePassesGrpcClient : ISatellitePassesClient
+public class EphemerisGrpcClient : IEphemerisClient
 {
     private readonly UriConfig _uriConfig;
 
-    public SatellitePassesGrpcClient(IOptions<UriConfig> uriConfig)
+    public EphemerisGrpcClient(IOptions<UriConfig> uriConfig)
     {
         _uriConfig = uriConfig.Value;
     }
-    public async Task<List<SatellitePassesItem>> Get(GetAllSatellitePassesOptions opts)
+    public async Task<List<SatellitePassesItem>> GetAllSatellitePasses(GetAllSatellitePassesOptions opts)
     {
-        using var channel = GrpcChannel.ForAddress(_uriConfig.SatellitePassesEndpoint);
+        using var channel = GrpcChannel.ForAddress(_uriConfig.EphemerisEndpoint);
 
-        var client = new SatellitePassesClient(channel);
+        var client = new EphemerisClient(channel);
 
         var request = new SatellitePassesRequest
         {
@@ -46,17 +46,19 @@ public class SatellitePassesGrpcClient : ISatellitePassesClient
             },
         };
 
-        var response = await client.GetAllAsync(request);
+        var response = await client.GetAllSatellitePassesAsync(request);
 
         return response.Items.ToList();
     }
 }
 
-public record GetAllSatellitePassesOptions(
-    string TleName,
-    string TleLine1,
-    string TleLine2,
-    double Latitude,
-    double Longitude,
-    int Elevation,
-    int Days);
+public class GetAllSatellitePassesOptions
+{
+    public string TleName { get; init; } = String.Empty;
+    public string TleLine1 { get; init; } = String.Empty;
+    public string TleLine2 { get; init; } =String.Empty;
+    public double Latitude { get; init; }
+    public double Longitude { get; init; }
+    public int Elevation { get; init; }
+    public int Days { get; init; }
+}

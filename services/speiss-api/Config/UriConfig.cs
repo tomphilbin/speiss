@@ -6,5 +6,5 @@ public class UriConfig
 
     public string TleEndpoint { get; set; } = String.Empty;
 
-    public string SatellitePassesEndpoint { get; set; } = String.Empty;
+    public string EphemerisEndpoint { get; set; } = String.Empty;
 }

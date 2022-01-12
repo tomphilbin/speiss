@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - env:
-            - name: Uri__SatellitePassesEndpoint
-              value: {{ tpl .Values.satellitePasses.service.host . }}
+            - name: Uri__EphemerisEndpoint
+              value: {{ tpl .Values.ephemeris.service.host . }}
           image: {{ tpl .Values.speissApi.image . }}
           name: {{ .Values.speissApi.name }}
           resources: 

@@ -33,13 +33,13 @@ speissApi:
     port: 80
     targetPort: 80
 
-satellitePasses:
-  name: satellite-passes
+ephemeris:
+  name: ephemeris
   version: "0.0.1"
-  image: "{{ .Values.artifactRepo }}/{{ .Values.satellitePasses.name }}:{{ .Values.satellitePasses.version }}"
+  image: "{{ .Values.artifactRepo }}/{{ .Values.ephemeris.name }}:{{ .Values.ephemeris.version }}"
   service:
-    name: "{{ .Values.satellitePasses.name }}-service"
-    host: "http://{{ tpl .Values.satellitePasses.service.name . }}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.satellitePasses.service.port }}"
+    name: "{{ .Values.ephemeris.name }}-service"
+    host: "http://{{ tpl .Values.ephemeris.service.name . }}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.ephemeris.service.port }}"
     port: 80
     targetPort: 80
 

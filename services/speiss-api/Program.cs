@@ -8,7 +8,7 @@ builder.Services
     .AddSingleton<ITleStore, CachingTleStore>()
     .AddTransient<IForecastMapper, ForecastMapper>()
     .AddTransient<IForecastVisibility, ForecastVisibility>()
-    .AddTransient<ISatellitePassesClient, SatellitePassesGrpcClient>()
+    .AddTransient<IEphemerisClient, EphemerisGrpcClient>()
     .Configure<UriConfig>(builder.Configuration.GetSection(UriConfig.Name))
     .Configure<Constants>(builder.Configuration.GetSection(Constants.Name))
     .AddMemoryCache()

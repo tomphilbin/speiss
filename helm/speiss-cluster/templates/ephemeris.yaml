@@ -3,22 +3,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Values.satellitePasses.name }}
-  name: {{ .Values.satellitePasses.name }}
+    app: {{ .Values.ephemeris.name }}
+  name: {{ .Values.ephemeris.name }}
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.satellitePasses.name }}
+      app: {{ .Values.ephemeris.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.satellitePasses.name }}
+        app: {{ .Values.ephemeris.name }}
     spec:
       containers:
-      - name: {{ .Values.satellitePasses.name }}
-        image: {{ tpl .Values.satellitePasses.image .}}
+      - name: {{ .Values.ephemeris.name }}
+        image: {{ tpl .Values.ephemeris.image .}}
         resources: 
           {{- toYaml .Values.resources | nindent 12 }}
       nodeSelector: 
@@ -30,14 +30,14 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: {{ .Values.satellitePasses.name }}
-  name: {{ tpl .Values.satellitePasses.service.name . }}
+    app: {{ .Values.ephemeris.name }}
+  name: {{ tpl .Values.ephemeris.service.name . }}
   namespace: {{ .Values.namespace }}
 spec:
   ports:
-    - port: {{ .Values.satellitePasses.service.port }}
+    - port: {{ .Values.ephemeris.service.port }}
       protocol: TCP
-      targetPort: {{ .Values.satellitePasses.service.targetPort }}
+      targetPort: {{ .Values.ephemeris.service.targetPort }}
   selector:
-    app: {{ .Values.satellitePasses.name }}
+    app: {{ .Values.ephemeris.name }}
   type: ClusterIP
