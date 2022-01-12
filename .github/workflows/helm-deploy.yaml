@@ -1,0 +1,37 @@
+name: Helm Deploy
+on:
+  push:
+    branches: [master]
+    paths:
+      - helm/**
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
+  GCP_ARTIFACT_REPO_NAME: speiss-images
+
+jobs:
+  needs: infrastructure-baseline
+  name: Helm Deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout Branch
+      uses: actions/checkout@v2
+
+    - uses: azure/setup-kubectl@v2.0
+      with:
+        version: v3.7.2
+
+    - name: Install Helm
+      uses: azure/setup-helm@v1
+      with:
+        version: v3.4.0
+
+    - name: Deploy Charts
+      working-directory: helm
+      run: |
+        helm template speiss-cluster \
+          --set 'artifactRepo="${GCP_REGION}"-docker.pkg.dev/"${GCP_PROJECT_ID}"/"${GCP_ARTIFACT_REPO_NAME}"' \
+          --set 'cloudflared.tunnelSecret.value="${CLOUDFLARED_TUNNEL_SECRET}"' \
+          | kubectl apply -f
+
