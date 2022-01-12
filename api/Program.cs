@@ -6,9 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddSingleton<ITleStore, CachingTleStore>()
-    .AddSingleton<IForecastMapper, ForecastMapper>()
-    .AddSingleton<IForecastVisibility, ForecastVisibility>()
-    .AddSingleton<ISatellitePassesClient, SatellitePassesGrpcClient>()
+    .AddTransient<IForecastMapper, ForecastMapper>()
+    .AddTransient<IForecastVisibility, ForecastVisibility>()
+    .AddTransient<ISatellitePassesClient, SatellitePassesGrpcClient>()
     .Configure<UriConfig>(builder.Configuration.GetSection(UriConfig.Name))
     .Configure<Constants>(builder.Configuration.GetSection(Constants.Name))
     .AddMemoryCache()
