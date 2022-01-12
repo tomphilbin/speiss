@@ -1,0 +1,47 @@
+name: Infrastructure Baseline
+on:
+  push:
+    branches: [master]
+    paths:
+      - infra/**
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
+  CLOUDFLARED_TUNNEL_SECRET: ${{ secrets.CLOUDFLARED_TUNNEL_SECRET }}
+  GCP_ARTIFACT_REPO_NAME: speiss-images
+
+jobs:
+  infrastructure-baseline:
+    name: Infrastructure Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14"
+
+      - name: Configure GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Install Dependencies
+        run: yarn
+        working-directory: infra
+
+      - name: Deploy Infrastructure Baseline
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: prod
+          work-dir: infra
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
