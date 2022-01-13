@@ -1,37 +1,66 @@
 name: Helm Deploy
 on:
   push:
-    branches: [master]
+    branches:
+      - master
     paths:
       - helm/**
 
 env:
+  CLOUDFLARED_TUNNEL_SECRET: ${{ secrets.CLOUDFLARED_TUNNEL_SECRET }}
+  GCP_ARTIFACT_REPO_NAME: ${{ secrets.GCP_ARTIFACT_REPO_NAME }}
+  GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+  GCP_K8S_CLUSTER_NAME: ${{ secrets.GCP_K8S_CLUSTER_NAME }}
+  GCP_K8S_PROXY_NAME: ${{ secrets.GCP_K8S_PROXY_NAME }}
+  GCP_K8S_PROXY_PORT: ${{ secrets.GCP_K8S_PROXY_PORT }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: ${{ secrets.GCP_REGION }}
-  GCP_ARTIFACT_REPO_NAME: speiss-images
+  GCP_ZONE: ${{ secrets.GCP_ZONE }}
+  PROXY_LOCAL_PORT: "9443"
 
 jobs:
-  needs: infrastructure-baseline
-  name: Helm Deploy
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout Branch
-      uses: actions/checkout@v2
+  helm-deploy:
+    name: Helm Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
 
-    - uses: azure/setup-kubectl@v2.0
-      with:
-        version: v3.7.2
+      - name: Install Helm
+        uses: azure/setup-helm@v1
 
-    - name: Install Helm
-      uses: azure/setup-helm@v1
-      with:
-        version: v3.4.0
+      - name: Configure GCP Auth
+        id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-    - name: Deploy Charts
-      working-directory: helm
-      run: |
-        helm template speiss-cluster \
-          --set 'artifactRepo="${GCP_REGION}"-docker.pkg.dev/"${GCP_PROJECT_ID}"/"${GCP_ARTIFACT_REPO_NAME}"' \
-          --set 'cloudflared.tunnelSecret.value="${CLOUDFLARED_TUNNEL_SECRET}"' \
-          | kubectl apply -f
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
 
+      - name: Set up kubectl
+        run: |
+          gcloud components install kubectl
+          gcloud container clusters get-credentials "${GCP_K8S_CLUSTER_NAME}" \
+            --region "${GCP_REGION}" \
+            --project "${GCP_PROJECT_ID}"
+
+      - name: Connect to Proxy
+        run: |
+          gcloud compute ssh "${GCP_K8S_PROXY_NAME}" \
+            --project "${GCP_PROJECT_ID}" \
+            --zone "${GCP_ZONE}" \
+            --ssh-key-expire-after=60m \
+            -- -L "${PROXY_LOCAL_PORT}":localhost:"${GCP_K8S_PROXY_PORT}" -N -q -f
+
+      - name: Deploy Charts
+        working-directory: helm
+        run: |
+          helm template speiss-cluster \
+            --set "artifactRepo=${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REPO_NAME}" \
+            --set "cloudflared.tunnelSecret.value=${CLOUDFLARED_TUNNEL_SECRET}" \
+            >> deployment.yaml
+
+            kubectl apply -f deployment.yaml
+        env:
+          HTTPS_PROXY: "localhost:${{ env.PROXY_LOCAL_PORT }}"

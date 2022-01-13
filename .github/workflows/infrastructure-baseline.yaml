@@ -1,15 +1,20 @@
 name: Infrastructure Baseline
 on:
   push:
-    branches: [master]
+    branches:
+      - master
     paths:
       - infra/**
 
 env:
+  GCP_ARTIFACT_REPO_NAME: ${{secrets.GCP_ARTIFACT_REPO_NAME}}
+  GCP_K8S_CLUSTER_NAME: ${{ secrets.GCP_K8S_CLUSTER_NAME }}
+  GCP_K8S_PROXY_NAME: ${{ secrets.GCP_K8S_PROXY_NAME }}
+  GCP_K8S_PROXY_PORT: ${{ secrets.GCP_K8S_PROXY_PORT }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: ${{ secrets.GCP_REGION }}
-  CLOUDFLARED_TUNNEL_SECRET: ${{ secrets.CLOUDFLARED_TUNNEL_SECRET }}
-  GCP_ARTIFACT_REPO_NAME: speiss-images
+  GCP_ZONE: ${{ secrets.GCP_ZONE}}
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
 jobs:
   infrastructure-baseline:
@@ -19,10 +24,23 @@ jobs:
       - name: Checkout Branch
         uses: actions/checkout@v2
 
-      - name: Install Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
           node-version: "14"
+
+      - name: Get Yarn Cache Directory
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Set up Yarn Cache
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Configure GCP Auth
         id: auth
@@ -33,15 +51,17 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - name: Install Dependencies
-        run: yarn
-        working-directory: infra
-
-      - name: Deploy Infrastructure Baseline
-        uses: pulumi/actions@v3
+      - name: Set up Pulumi
+        uses: pulumi/setup-pulumi@v2
         with:
-          command: up
-          stack-name: prod
-          work-dir: infra
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          pulumi-version: 3.22.0
+
+      - name: Pulumi Up!
+        working-directory: infra
+        run: |
+          yarn
+          pulumi stack select prod
+          pulumi config set 'gcp:project' "${GCP_PROJECT_ID}"
+          pulumi config set 'gcp:region' "${GCP_REGION}"
+          pulumi config set 'gcp:zone' "${GCP_ZONE}"
+          pulumi up --yes --non-interactive

@@ -25,7 +25,7 @@ artifactRepo: "" # Set with helm template command
 
 speissApi:
   name: speiss-api
-  version: "0.0.2"
+  version: "0.1.0"
   image: "{{ .Values.artifactRepo }}/{{ .Values.speissApi.name }}:{{ .Values.speissApi.version }}"
   service:
     name: "{{ .Values.speissApi.name }}-service"
@@ -35,7 +35,7 @@ speissApi:
 
 ephemeris:
   name: ephemeris
-  version: "0.0.1"
+  version: "0.1.0"
   image: "{{ .Values.artifactRepo }}/{{ .Values.ephemeris.name }}:{{ .Values.ephemeris.version }}"
   service:
     name: "{{ .Values.ephemeris.name }}-service"
