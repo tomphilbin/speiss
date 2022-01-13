@@ -59,16 +59,11 @@ new gcp.compute.Instance(
 )
 
 new gcp.compute.Firewall(
-  `${k8sProxyName}-rule`,
+  `${k8sProxyName}-ssh-rule`,
   {
     direction: 'INGRESS',
     network: network.name,
-    allows: [
-      {
-        ports: ['22', k8sProxyPort!],
-        protocol: 'tcp',
-      },
-    ],
+    allows: [{ ports: ['22'], protocol: 'tcp' }],
     targetTags: [k8sProxyName!],
   },
   { dependsOn: [network] }
