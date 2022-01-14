@@ -1,9 +1,7 @@
 docker-build-m1:
-	cp -r ../protos/ ./protos/
+	(cd ../../; sh ./scripts/protoc.sh)
 	docker buildx build --platform linux/amd64 .
-	rm -rf ./protos
 
 docker-build-ci:
-	cp -r ../protos/ ./protos/
+	(cd ../../; sh ./scripts/protoc.sh)
 	docker build . -t $(tag)
-	rm -rf ./protos

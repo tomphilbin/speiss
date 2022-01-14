@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /source
 
 COPY ./SpeissApi.csproj ./api/SpeissApi.csproj
-COPY ./protos/* ./services/protos/
+COPY ./protos/* ./protos/
 RUN dotnet restore ./api
 
 # copy everything else and build app

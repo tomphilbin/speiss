@@ -1,3 +1,5 @@
+#!/bin/bash
+
 python3 -m grpc_tools.protoc \
     -I ./services/protos \
     --python_out=./services/ephemeris \

@@ -4,11 +4,11 @@ resources:
   limits:
     cpu: 1000m
     ephemeral-storage: 512Mi
-    memory: 256Mi
+    memory: 512Mi
   requests:
     cpu: 250m
     ephemeral-storage: 512Mi
-    memory: 256Mi
+    memory: 512Mi
 
 nodeSelector:
   cloud.google.com/gke-spot: "true"
