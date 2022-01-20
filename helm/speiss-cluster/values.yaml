@@ -45,7 +45,7 @@ ephemeris:
 
 cloudflared:
   name: cloudflared
-  version: "2022.1.0"
+  version: "2022.1.2"
   image: "cloudflare/cloudflared:{{ .Values.cloudflared.version }}"
   config:
     name: cloudflared
